@@ -7,8 +7,7 @@ function connect_mysql_pdns() {
 	include "config.php";
 
 try {
-        $conn = new PDO( "mysql:host=$dbserverpdns;dbname=$dbnamepdns", $dbuserpdns, $dbpasspdns,
-        );
+        $conn = new PDO( "mysql:host=$dbserverpdns;dbname=$dbnamepdns", $dbuserpdns, $dbpasspdns);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);} catch (PDOException $e) {
 }
@@ -171,7 +170,7 @@ if (!in_array($type, array("TXT", "TLSA"))) {
 }
 
 
-if ($type == "A" || $type = "AAAA") {
+if ($type == "A" || $type == "AAAA") {
 	$ip = $content;
 	if (!$ip || (!filter_var($ip, FILTER_VALIDATE_IP))) {
 		if (isset($_SERVER['HTTP_INCAP_CLIENT_IP'])) {
