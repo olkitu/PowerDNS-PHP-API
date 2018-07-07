@@ -18,6 +18,13 @@ catch(PDOException $e)
 return $conn;
 }
 
+function is_valid_domain_name($domain_name)
+{
+    return (preg_match("/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i", $domain_name) //valid chars check
+            && preg_match("/^.{1,253}$/", $domain_name) //overall length check
+            && preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name)   ); //length of each label
+}
+
 function check_records_pdns($hostname, $type) {
         $conn = connect_mysql_pdns();
         $sql = $conn->prepare ("SELECT content FROM records WHERE name = ? AND type = ? AND disabled=0");
@@ -130,6 +137,12 @@ function do_update_soa($hostname, $type) {
 	}
 }
 
+function ipVersion($ip) {
+     return strpos($ip, ":") === false ? 4 : 6;
+}
+
+
+//Get API keys
 if (empty($_GET['key'])) {
         die("Unauthorized");
 }
@@ -164,25 +177,24 @@ if (isset($ttl)) {
 }
 
 //Check allowed records type
-if (!in_array($type, array("TXT", "TLSA"))) {
-        print "dnserr - please specify record type TXT or TLSA";
+if (!in_array($type, array("A", "TXT", "TLSA"))) {
+        print "dnserr - please specify record type A, AAAA, TXT or TLSA";
         exit();
 }
-
-
+//Check IP is valid format
 if ($type == "A" || $type == "AAAA") {
-	$ip = $content;
-	if (!$ip || (!filter_var($ip, FILTER_VALIDATE_IP))) {
-		if (isset($_SERVER['HTTP_INCAP_CLIENT_IP'])) {
-			$ip = $_SERVER['HTTP_INCAP_CLIENT_IP'];
-		} else if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-			$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
-		} else {
-			$ip = $_SERVER['REMOTE_ADDR'];
-		}
+    if (!$content || (!filter_var($content, FILTER_VALIDATE_IP))) {
+        die("dnserr - Invalid IP-address ". $content);
+    }
+
+	//Change to AAAA if post IPv6-address
+    if( ipVersion($content) == 6 )
+        $type = 'AAAA';
+	
+	//Check if valid domain name format
+	if (is_valid_domain_name($hostname) == false) {
+        die("notfqdn ". $hostname);
 	}
-	
-	
 }
 
 $domain = explode('.',$hostname);
@@ -192,7 +204,6 @@ $domain = $domain[1].'.'.$domain[0];
 $check_records_pdns = check_records_pdns($hostname, $type);
 if ($check_records_pdns == false) {
         $domain_id = get_domain_ids_pdns($domain);
-
 
         $do_add = do_add($domain_id, $hostname, $content, $type, $ttl);
         if ($do_add == true) {
