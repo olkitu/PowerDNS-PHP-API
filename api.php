@@ -201,8 +201,15 @@ $domain = explode('.',$hostname);
 $domain = array_reverse($domain);
 $domain = $domain[1].'.'.$domain[0];
 
+//Check if TLSA record is not same because updating broke old record. IF not same, then add new record to DNS
+$get_record_ids_pdns = "";
+if ($type == "TLSA") {
+	$get_record_ids_pdns = get_record_ids_pdns($hostname, $content, $type);
+}
+	
+
 $check_records_pdns = check_records_pdns($hostname, $type);
-if ($check_records_pdns == false) {
+if ($check_records_pdns == false || $get_record_ids_pdns == false) {
         $domain_id = get_domain_ids_pdns($domain);
 
         $do_add = do_add($domain_id, $hostname, $content, $type, $ttl);
