@@ -7,7 +7,7 @@ This is very simple PHP DNS API for PowerDNS servers. It use directly MySQL-data
 Clone repo to your server 
 
 ```
-https://github.com/olkitu/PowerDNS-PHP-API.git
+git clone https://github.com/olkitu/PowerDNS-PHP-API.git
 ```
 
 Configure then to config.php mysql database connection. 
