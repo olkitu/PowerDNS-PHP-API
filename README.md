@@ -4,10 +4,10 @@ This is very simple PHP DNS API for PowerDNS servers. It use directly MySQL-data
 
 ## Installation
 
-Clone rpository to your server 
+Clone repo to your server 
 
 ```
-https://gitlab.truong.fi/internal/PowerDNS-PHP-API.git
+https://github.com/olkitu/PowerDNS-PHP-API.git
 ```
 
 Configure then to config.php mysql database connection. 

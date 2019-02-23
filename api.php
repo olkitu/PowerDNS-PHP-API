@@ -171,13 +171,32 @@ if(!$ttl)
         $ttl = $_SERVER['QUERY_STRING'];
 $ttl = trim($ttl);
 
+//For DynDNS request
+$ip = isset($_GET['myip']) && $_GET['myip'] ? $_GET['myip'] : '';
+$ip = trim($ip);
+if (!$ip || (!filter_var($ip, FILTER_VALIDATE_IP))) {
+	if (isset($_SERVER['HTTP_INCAP_CLIENT_IP'])) {
+		$ip = $_SERVER['HTTP_INCAP_CLIENT_IP'];
+	} else if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+	} else {
+		$ip = $_SERVER['REMOTE_ADDR'];
+	}
+	//Set type to A because myip sended
+	$type = "A";
+	
+	//Set content value ip-address
+	$content = $ip;
+}
+
+
 //Set default TTL
 if (isset($ttl)) {
         $ttl = "300";
 }
 
 //Check allowed records type
-if (!in_array($type, array("A", "TXT", "TLSA"))) {
+if (!in_array($type, array("A", "AAAA", "TXT", "TLSA"))) {
         print "dnserr - please specify record type A, AAAA, TXT or TLSA";
         exit();
 }
