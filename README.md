@@ -2,6 +2,14 @@
 
 This is very simple PHP DNS API for PowerDNS servers. It use directly MySQL-database with PHP-PDO method. 
 
+This API support A, AAAA, TXT and TLSA records.
+
+## Requirements
+
+* Apache/Nginx
+* PHP7 with PDO-MySQL support
+* PowerDNS with MySQL
+
 ## Installation
 
 Clone repo to your server 
